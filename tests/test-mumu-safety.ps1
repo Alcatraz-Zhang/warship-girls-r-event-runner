@@ -36,6 +36,7 @@ $environmentNames = @(
     'SAFETY_PS2',
     'SAFETY_FOREGROUND1',
     'SAFETY_FOREGROUND2',
+    'SAFETY_FOREGROUND_SOURCE',
     'SAFETY_LIST_SERIAL2',
     'SAFETY_PNG_SOURCE',
     'SAFETY_INPUT_LOG',
@@ -157,6 +158,7 @@ function Set-DeviceState {
     Set-TestEnvironment -Name 'SAFETY_PS2' -Value $Ps2
     Set-TestEnvironment -Name 'SAFETY_FOREGROUND1' -Value 'com.huanmeng.zhanjian2'
     Set-TestEnvironment -Name 'SAFETY_FOREGROUND2' -Value 'com.huanmeng.zhanjian2'
+    Set-TestEnvironment -Name 'SAFETY_FOREGROUND_SOURCE' -Value 'windows'
     Set-TestEnvironment -Name 'SAFETY_LIST_SERIAL2' -Value $(if ($ListSerial2) { '1' } else { '0' })
 }
 
@@ -279,7 +281,8 @@ if "%2"=="settings" goto android
 if "%2"=="pidof" goto pid
 if "%2"=="ps" goto ps
 if "%2"=="wm" if "%3"=="size" goto wm_size
-if "%2"=="dumpsys" if "%3"=="window" goto window
+if "%2"=="dumpsys" if "%3"=="window" if "%4"=="windows" goto window_windows
+if "%2"=="dumpsys" if "%3"=="window" if "%4"=="displays" goto window_displays
 if "%2"=="dumpsys" if "%3"=="activity" goto activity
 if "%2"=="dumpsys" if "%3"=="input" goto input
 if "%2"=="screencap" goto screencap
@@ -308,10 +311,16 @@ exit /b 0
 :wm_size
 echo Physical size: 1080x1920
 exit /b 0
-:window
+:window_windows
+if /I "%SAFETY_FOREGROUND_SOURCE%"=="displays" exit /b 0
+echo mCurrentFocus=Window{0 u0 %FAKE_FOREGROUND%/.MainActivity}
+exit /b 0
+:window_displays
+if /I not "%SAFETY_FOREGROUND_SOURCE%"=="displays" exit /b 0
 echo mCurrentFocus=Window{0 u0 %FAKE_FOREGROUND%/.MainActivity}
 exit /b 0
 :activity
+if /I "%SAFETY_FOREGROUND_SOURCE%"=="displays" exit /b 0
 echo mResumedActivity: ActivityRecord{0 u0 %FAKE_FOREGROUND%/.MainActivity t1}
 exit /b 0
 :input
@@ -365,7 +374,7 @@ Start-Sleep -Seconds 30
     $runnerParentScript = Join-Path $tempRoot 'runner-parent.ps1'
     [IO.File]::WriteAllText($runnerParentScript, @'
 param([string]$ChildScript, [string]$PidFile)
-$powershell = Join-Path $PSHOME 'powershell.exe'
+$powershell = (Get-Process -Id $PID).Path
 Start-Sleep -Milliseconds 250
 $startInfo = [Diagnostics.ProcessStartInfo]::new()
 $startInfo.FileName = $powershell
@@ -388,7 +397,7 @@ Start-Sleep -Milliseconds 800
     $runnerDaemonParentScript = Join-Path $tempRoot 'runner-daemon-parent.ps1'
     [IO.File]::WriteAllText($runnerDaemonParentScript, @'
 param([string]$ChildScript, [string]$MarkerPath)
-$powershell = Join-Path $PSHOME 'powershell.exe'
+$powershell = (Get-Process -Id $PID).Path
 $startInfo = [Diagnostics.ProcessStartInfo]::new()
 $startInfo.FileName = $powershell
 $startInfo.Arguments = "-NoLogo -NoProfile -NonInteractive -File `"$ChildScript`" `"$MarkerPath`""
@@ -427,7 +436,7 @@ $startInfo.CreateNoWindow = $true
 
     Invoke-TestCase -Name 'bounded runner preserves a successful command persistent child' -Body {
         . $script:runner
-        $powershellExe = Join-Path $PSHOME 'powershell.exe'
+        $powershellExe = (Get-Process -Id $PID).Path
         $markerPath = Join-Path $tempRoot 'runner-daemon-completed.txt'
         if (Test-Path -LiteralPath $markerPath) { Remove-Item -LiteralPath $markerPath -Force }
         $result = Invoke-BoundedProcess -FilePath $powershellExe -ArgumentList @('-NoLogo', '-NoProfile', '-NonInteractive', '-File', $runnerDaemonParentScript, $runnerDaemonChildScript, $markerPath) -TimeoutMs 5000
@@ -445,7 +454,7 @@ $startInfo.CreateNoWindow = $true
 
     Invoke-TestCase -Name 'bounded runner preserves executable argument-array boundaries' -Body {
         . $script:runner
-        $powershellExe = Join-Path $PSHOME 'powershell.exe'
+        $powershellExe = (Get-Process -Id $PID).Path
         $expected = @('plain', 'with space', 'quote"inside', '', 'tail\')
         $arguments = @('-NoLogo', '-NoProfile', '-NonInteractive', '-File', $runnerArgsScript) + $expected
         $result = Invoke-BoundedProcess -FilePath $powershellExe -ArgumentList $arguments -TimeoutMs 5000
@@ -465,7 +474,7 @@ $startInfo.CreateNoWindow = $true
 
     Invoke-TestCase -Name 'bounded runner kills a timed-out process tree within a bound' -Body {
         . $script:runner
-        $powershellExe = Join-Path $PSHOME 'powershell.exe'
+        $powershellExe = (Get-Process -Id $PID).Path
         $childPidFile = Join-Path $tempRoot 'runner-child.pid'
         if (Test-Path -LiteralPath $childPidFile) { Remove-Item -LiteralPath $childPidFile -Force }
         $started = [DateTime]::UtcNow
@@ -1018,6 +1027,23 @@ $startInfo.CreateNoWindow = $true
             }
         } finally {
             Set-TestEnvironment -Name 'SAFETY_FOREGROUND1' -Value 'com.huanmeng.zhanjian2'
+        }
+    }
+
+    Invoke-TestCase -Name 'foreground falls back to window displays on current MuMu Android' -Body {
+        Write-CliState -State ([ordered]@{
+            vm9 = [ordered]@{ index = 9; is_process_started = $true; adb_port = $port1 }
+        })
+        Set-DeviceState -Serial1 $serial1
+        Set-TestEnvironment -Name 'SAFETY_FOREGROUND_SOURCE' -Value 'displays'
+        try {
+            $json = & $script:resolver -Action Info -VmIndex 9 -RequireForeground -TcpTimeoutMs 200
+            $info = $json | ConvertFrom-Json
+            if ($info.ForegroundPackage -cne 'com.huanmeng.zhanjian2' -or $info.ForegroundActivity -cne '.MainActivity') {
+                throw "Expected foreground state from dumpsys window displays; got '$($info.ForegroundPackage)/$($info.ForegroundActivity)'."
+            }
+        } finally {
+            Set-TestEnvironment -Name 'SAFETY_FOREGROUND_SOURCE' -Value 'windows'
         }
     }
 

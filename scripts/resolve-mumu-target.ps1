@@ -230,6 +230,10 @@ function Get-ForegroundState {
     $text = Invoke-AdbText -Serial $Serial -Arguments @('shell', 'dumpsys', 'window', 'windows')
     $match = [regex]::Match($text, '(?:mCurrentFocus|mFocusedApp).*?\s(?<package>[A-Za-z0-9._]+)\/(?<activity>[A-Za-z0-9._$]+)')
     if (-not $match.Success) {
+        $text = Invoke-AdbText -Serial $Serial -Arguments @('shell', 'dumpsys', 'window', 'displays')
+        $match = [regex]::Match($text, '(?:mCurrentFocus|mFocusedApp).*?\s(?<package>[A-Za-z0-9._]+)\/(?<activity>[A-Za-z0-9._$]+)')
+    }
+    if (-not $match.Success) {
         $text = Invoke-AdbText -Serial $Serial -Arguments @('shell', 'dumpsys', 'activity', 'activities')
         $match = [regex]::Match($text, 'mResumedActivity.*?\s(?<package>[A-Za-z0-9._]+)\/(?<activity>[A-Za-z0-9._$]+)')
     }
