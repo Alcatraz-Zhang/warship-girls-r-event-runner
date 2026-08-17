@@ -1,5 +1,10 @@
 # 变更记录
 
+## 0.1.1 - 2026-08-18
+
+- 将 Codex 可选安装示例更新为当前个人级 `$HOME/.agents/skills` 和仓库级 `.agents/skills` 目录；
+- 将 GitHub Actions 的 `actions/checkout` 升级并固定到 v7.0.1 提交，消除旧 Node.js 运行时提示。
+
 ## 0.1.0 - 2026-08-17
 
 - 发布与具体 Agent 产品无关的中文活动执行流程，覆盖当期资料研究、自动带路、编队、战斗结算与中断恢复；

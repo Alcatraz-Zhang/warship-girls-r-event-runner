@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: 检出仓库
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 验证目录、JSON、PowerShell 与链接
         shell: pwsh

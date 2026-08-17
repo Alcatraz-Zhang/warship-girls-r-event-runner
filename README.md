@@ -83,17 +83,15 @@
 
 ## Codex 可选目录安装示例
 
-Codex 用户可以选择把同一普通目录克隆到技能发现目录；这只是可选的目录布局，不会把项目转换成 `.skill` 包，也不会改变 [WORKFLOW.md](WORKFLOW.md) 的通用性：
+Codex 用户可以选择把同一普通目录克隆到个人技能发现目录 `$HOME/.agents/skills`；这只是可选的目录布局，不会把项目转换成 `.skill` 包，也不会改变 [WORKFLOW.md](WORKFLOW.md) 的通用性：
 
 ```powershell
-if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) {
-    throw "未设置 CODEX_HOME，无法确定 Codex 技能目录。"
-}
-
-git clone "<仓库地址>" (Join-Path $env:CODEX_HOME "skills\warship-girls-r-event-runner")
+$skillRoot = Join-Path $HOME ".agents\skills"
+New-Item -ItemType Directory -Force -Path $skillRoot | Out-Null
+git clone "https://github.com/Alcatraz-Zhang/warship-girls-r-event-runner.git" (Join-Path $skillRoot "warship-girls-r-event-runner")
 ```
 
-如果目标目录已经存在，应先审查现有内容并选择更新或另一个目录，不要用覆盖命令替换未知文件。运行检查点仍应复制到 `<任务工作区>`，不能保存在 `$env:CODEX_HOME` 下的安装目录中。
+如果只希望在某个目标项目内使用，也可以放在该目标项目仓库根目录的 `.agents/skills/warship-girls-r-event-runner`。如果目标目录已经存在，应先审查现有内容并选择更新或另一个目录，不要用覆盖命令替换未知文件。运行检查点仍应复制到 `<任务工作区>`，不能保存在技能安装目录中。
 
 ## 运行安全原则
 

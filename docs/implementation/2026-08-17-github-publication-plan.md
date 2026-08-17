@@ -2,6 +2,8 @@
 
 > **供 Agent 执行：** 必须使用 `superpowers:subagent-driven-development`（推荐）或 `superpowers:executing-plans`，逐项执行下列复选步骤。
 
+> **完成状态（2026-08-18）：** 本计划已执行完成，公开仓库、版本标签与 Windows CI 均已建立并核验。下方未勾选的复选框保留为首次实施时的历史步骤，不代表当前待办；当前文件、测试结果与 GitHub 远端状态为准。
+
 **目标：** 把已经验证的战舰少女R活动执行工作流整理成公开、MIT 授权、中文文档齐全的普通 GitHub 目录，并发布到 `Alcatraz-Zhang/warship-girls-r-event-runner`。
 
 **架构：** 仓库以 `WORKFLOW.md` 作为平台无关入口，以 `SKILL.md` 作为支持 Skill 约定的平台入口；五个 PowerShell 脚本分别负责 MuMu 目标解析、唯一截图取证、有界外部进程、实时画面比较和单次证据绑定输入。静态验证脚本和离线假 ADB 测试在本地与 GitHub Actions 中复用，不连接真实模拟器。
