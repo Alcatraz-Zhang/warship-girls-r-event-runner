@@ -3,7 +3,8 @@
 ## 0.1.2 - 2026-08-18
 
 - 将运行环境说明从 `SKILL.md` YAML 头部移入正文，使元数据符合当前 Skill 校验器允许的字段集合；
-- 为 GitHub Release 提供可直接复制到 `$HOME/.agents/skills` 的最小安装压缩包，只保留 11 个运行文件与 MIT 许可证。
+- 为 GitHub Release 提供可直接复制到 `$HOME/.agents/skills` 的最小安装压缩包，只保留 11 个运行文件与 MIT 许可证；
+- 稳定慢截图安全回归测试，避免 CI 机器上嵌套 PowerShell 启动延迟干扰预期的画面过期分支。
 
 ## 0.1.1 - 2026-08-18
 

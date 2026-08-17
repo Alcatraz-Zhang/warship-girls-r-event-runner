@@ -23,7 +23,7 @@ $environmentNames = @(
     'INPUT_SEQUENCE_LOG',
     'INPUT_VISUAL_A',
     'INPUT_VISUAL_B',
-    'INPUT_VISUAL_B_DELAY_MS',
+    'INPUT_VISUAL_B_SLOW',
     'INPUT_VISUAL_FAILURE'
 )
 $savedEnvironment = @{}
@@ -460,7 +460,7 @@ if not "%INPUT_VISUAL_FAILURE%"=="" exit /b 21
 if "%3"=="shell" if "%4"=="screencap" (
   echo %6| findstr /c:"-a.png" >nul
   echo %6| findstr /c:"-b.png" >nul
-  if not errorlevel 1 if defined INPUT_VISUAL_B_DELAY_MS if not "%INPUT_VISUAL_B_DELAY_MS%"=="0" powershell.exe -NoLogo -NoProfile -NonInteractive -Command "Start-Sleep -Milliseconds %INPUT_VISUAL_B_DELAY_MS%"
+  if not errorlevel 1 if "%INPUT_VISUAL_B_SLOW%"=="1" "%SystemRoot%\System32\PING.EXE" -n 5 127.0.0.1 >nul
   exit /b 0
 )
 if "%3"=="pull" (
@@ -503,7 +503,7 @@ exit /b 0
     New-SyntheticFrame -Path $script:visualB
     Set-TestEnvironment -Name 'INPUT_VISUAL_A' -Value $script:visualA
     Set-TestEnvironment -Name 'INPUT_VISUAL_B' -Value $script:visualB
-    Set-TestEnvironment -Name 'INPUT_VISUAL_B_DELAY_MS' -Value '0'
+    Set-TestEnvironment -Name 'INPUT_VISUAL_B_SLOW' -Value '0'
     Set-TestEnvironment -Name 'INPUT_VISUAL_FAILURE' -Value ''
 
     Invoke-TestCase -Name 'stale evidence is rejected without ADB' -Body {
@@ -949,12 +949,12 @@ exit /b 0
     Invoke-TestCase -Name 'live frame age includes a slow successful B screencap' -Body {
         $evidence = New-Evidence -Name 'visual-slow-live-b'
         try {
-            Set-TestEnvironment -Name 'INPUT_VISUAL_B_DELAY_MS' -Value '3300'
+            Set-TestEnvironment -Name 'INPUT_VISUAL_B_SLOW' -Value '1'
             Assert-NoInputCall -MessagePattern '^Input refused: live screen evidence expired before input\.' -Body {
                 & $helper -Action Tap -X 100 -Y 200 -EvidenceJson $evidence -MaxEvidenceAgeSeconds 30
             }
         } finally {
-            Set-TestEnvironment -Name 'INPUT_VISUAL_B_DELAY_MS' -Value '0'
+            Set-TestEnvironment -Name 'INPUT_VISUAL_B_SLOW' -Value '0'
         }
         $receipt = Get-Content -LiteralPath "$evidence.consumed.json" -Raw | ConvertFrom-Json
         if ($receipt.Status -ne 'live-frame-expired-before-input' -or $receipt.LiveFrameAgeSeconds -le 3) {
