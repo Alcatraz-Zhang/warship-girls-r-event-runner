@@ -1,5 +1,10 @@
 # 变更记录
 
+## 0.1.2 - 2026-08-18
+
+- 将运行环境说明从 `SKILL.md` YAML 头部移入正文，使元数据符合当前 Skill 校验器允许的字段集合；
+- 为 GitHub Release 提供可直接复制到 `$HOME/.agents/skills` 的最小安装压缩包，只保留 11 个运行文件与 MIT 许可证。
+
 ## 0.1.1 - 2026-08-18
 
 - 将 Codex 可选安装示例更新为当前个人级 `$HOME/.agents/skills` 和仓库级 `.agents/skills` 目录；

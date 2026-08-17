@@ -91,6 +91,8 @@ git clone "https://github.com/Alcatraz-Zhang/warship-girls-r-event-runner.git" (
 
 如果只希望在某个目标项目内使用，也可以放在该目标项目仓库根目录的 `.agents/skills/warship-girls-r-event-runner`。如果目标目录已经存在，应先审查现有内容并选择更新或另一个目录，不要用覆盖命令替换未知文件。运行检查点仍应复制到 `<任务工作区>`，不能保存在技能安装目录中。
 
+也可以从 [GitHub Releases](https://github.com/Alcatraz-Zhang/warship-girls-r-event-runner/releases/latest) 下载名称以 `-minimal.zip` 结尾的安装包。解压后会得到 `warship-girls-r-event-runner` 目录；把整个目录复制到 `$HOME/.agents/skills` 即可。该压缩包只包含运行所需的 Skill、工作流、脚本、参考资料、检查点模板与 MIT 许可证，不包含仓库测试、评测、维护文档或 CI 配置。
+
 ## 运行安全原则
 
 1. **动态目标与前台指纹：** 每次启动、恢复或异常后重新发现 ADB 目标，核验 VM 索引、启动与 Android 标识、游戏 PID、前台包与活动、分辨率和旋转；多个匹配目标时停止询问。

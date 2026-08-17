@@ -262,7 +262,6 @@ $skillText = @'
 ---
 name: warship-girls-r-event-runner
 description: Runs an event safely.
-compatibility: Windows PowerShell 5.1 or later.
 ---
 
 # Fixture skill
@@ -704,50 +703,22 @@ AUTH_TOKEN=<AUTH_TOKEN>
         Write-FixtureFile -RelativePath 'README.md' -Content $markdown
     }
 
-    Assert-Fails -Name 'frontmatter compatibility missing' -Arrange {
+    Assert-Fails -Name 'frontmatter rejects unsupported compatibility key' -Arrange {
         $value = @'
 ---
 name: warship-girls-r-event-runner
 description: Runs an event safely.
----
-'@
-        Write-FixtureFile -RelativePath 'SKILL.md' -Content $value
-    }
-    foreach ($emptyCompatibility in @('', '""', "''", '~', 'null')) {
-        $currentCompatibility = $emptyCompatibility
-        Assert-Fails -Name ("frontmatter compatibility invalid value '$currentCompatibility'") -Arrange {
-            $value = "---`nname: warship-girls-r-event-runner`ndescription: Runs an event safely.`ncompatibility: $currentCompatibility`n---`n"
-            Write-FixtureFile -RelativePath 'SKILL.md' -Content $value
-        }
-    }
-    Assert-Fails -Name 'frontmatter compatibility must be single line' -Arrange {
-        $value = "---`nname: warship-girls-r-event-runner`ndescription: Runs an event safely.`ncompatibility: |`n  Windows PowerShell 5.1`n---`n"
-        Write-FixtureFile -RelativePath 'SKILL.md' -Content $value
-    }
-    Assert-Fails -Name 'frontmatter compatibility must be a string scalar' -Arrange {
-        $value = "---`nname: warship-girls-r-event-runner`ndescription: Runs an event safely.`ncompatibility: []`n---`n"
-        Write-FixtureFile -RelativePath 'SKILL.md' -Content $value
-    }
-    Assert-Fails -Name 'frontmatter compatibility rejects unterminated quote' -Arrange {
-        $value = "---`nname: warship-girls-r-event-runner`ndescription: Runs an event safely.`ncompatibility: `"Windows PowerShell 5.1`n---`n"
-        Write-FixtureFile -RelativePath 'SKILL.md' -Content $value
-    }
-    Assert-Fails -Name 'frontmatter compatibility rejects lone quote' -Arrange {
-        $value = @'
----
-name: warship-girls-r-event-runner
-description: Runs an event safely.
-compatibility: "
+compatibility: Windows PowerShell 5.1 or later.
 ---
 '@
         Write-FixtureFile -RelativePath 'SKILL.md' -Content $value
     }
     Assert-Fails -Name 'frontmatter description must be a string scalar' -Arrange {
-        $value = "---`nname: warship-girls-r-event-runner`ndescription: {}`ncompatibility: Windows PowerShell 5.1`n---`n"
+        $value = "---`nname: warship-girls-r-event-runner`ndescription: {}`n---`n"
         Write-FixtureFile -RelativePath 'SKILL.md' -Content $value
     }
     Assert-Fails -Name 'frontmatter closing marker must stand alone' -Arrange {
-        $value = "---`nname: warship-girls-r-event-runner`ndescription: Runs an event safely.`ncompatibility: Windows PowerShell 5.1`n--- trailing`n"
+        $value = "---`nname: warship-girls-r-event-runner`ndescription: Runs an event safely.`n--- trailing`n"
         Write-FixtureFile -RelativePath 'SKILL.md' -Content $value
     }
 }

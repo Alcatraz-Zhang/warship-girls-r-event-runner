@@ -951,6 +951,16 @@ if (-not $frontmatter.Success) {
     throw 'SKILL.md frontmatter is missing or has an invalid closing marker.'
 }
 $frontmatterBody = $frontmatter.Groups['body'].Value
+$allowedFrontmatterKeys = @('name', 'description', 'license', 'allowed-tools', 'metadata')
+$topLevelKeys = @(
+    [regex]::Matches($frontmatterBody, '(?m)^(?<name>[A-Za-z][A-Za-z0-9_-]*):') |
+        ForEach-Object { $_.Groups['name'].Value } |
+        Sort-Object -Unique
+)
+$unexpectedFrontmatterKeys = @($topLevelKeys | Where-Object { $_ -notin $allowedFrontmatterKeys })
+if ($unexpectedFrontmatterKeys.Count -gt 0) {
+    throw "SKILL.md frontmatter contains unsupported key(s): $($unexpectedFrontmatterKeys -join ', ')."
+}
 $frontmatterName = Get-FrontmatterScalar -Body $frontmatterBody -Name 'name'
 if ($frontmatterName.Trim() -cne 'warship-girls-r-event-runner') {
     throw 'SKILL.md frontmatter name is invalid.'
@@ -958,10 +968,6 @@ if ($frontmatterName.Trim() -cne 'warship-girls-r-event-runner') {
 $description = Get-FrontmatterScalar -Body $frontmatterBody -Name 'description'
 if (-not (Test-IsNonEmptyYamlScalar -Value $description)) {
     throw 'SKILL.md frontmatter description is empty.'
-}
-$compatibility = Get-FrontmatterScalar -Body $frontmatterBody -Name 'compatibility'
-if (-not (Test-IsNonEmptyYamlScalar -Value $compatibility)) {
-    throw 'SKILL.md frontmatter compatibility is empty or multiline.'
 }
 
 Write-Output 'Repository validation passed.'
