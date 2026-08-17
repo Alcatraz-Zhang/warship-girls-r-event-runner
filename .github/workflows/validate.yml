@@ -1,0 +1,38 @@
+name: 验证通用目录
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 验证目录、JSON、PowerShell 与链接
+        shell: pwsh
+        run: ./tests/validate-repository.ps1
+
+      - name: 运行仓库验证器回归测试
+        shell: pwsh
+        run: ./tests/test-validate-repository.ps1
+
+      - name: 运行输入助手离线测试
+        shell: pwsh
+        run: ./tests/test-send-mumu-input.ps1
+
+      - name: 运行 MuMu 安全离线测试
+        shell: pwsh
+        run: ./tests/test-mumu-safety.ps1
+
+      - name: 兼容 Windows PowerShell 5.1
+        shell: powershell
+        run: |
+          ./tests/test-mumu-safety.ps1
+          ./tests/test-send-mumu-input.ps1

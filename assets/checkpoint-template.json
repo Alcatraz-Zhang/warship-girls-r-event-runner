@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "updated_at": null,
+  "activity": {
+    "name": null,
+    "start_date": null,
+    "end_date": null,
+    "requested_scope": [],
+    "definition_of_done": []
+  },
+  "emulator": {
+    "vm_index": null,
+    "serial": null,
+    "source": null,
+    "boot_id": null,
+    "android_id": null,
+    "model": null,
+    "game_package": null,
+    "game_pid": null,
+    "foreground_package": null,
+    "foreground_activity": null,
+    "physical_size": null,
+    "override_size": null,
+    "rotation": null,
+    "screenshot_path": null,
+    "screenshot_sidecar": null
+  },
+  "current_state": {
+    "page": null,
+    "chapter": null,
+    "map": null,
+    "entrance": null,
+    "progress": null,
+    "blocker": null,
+    "next_safe_action": null
+  },
+  "fleet": {
+    "slots": [],
+    "ship_identity_checks": [
+      {
+        "slot": null,
+        "name": null,
+        "form": null,
+        "class": null,
+        "level": null,
+        "favorite": null,
+        "candidate_count": null,
+        "expected_skill": {
+          "name_or_branch": null,
+          "minimum_level": null
+        },
+        "observed_active_skill": {
+          "name_or_branch": null,
+          "level": null
+        },
+        "identity_verified": false,
+        "evidence_sidecar": null
+      }
+    ],
+    "route_constraints": [],
+    "equipment_notes": [],
+    "repair_supply_verified": false
+  },
+  "battle_center": {
+    "points_remaining": null,
+    "active_buffs": []
+  },
+  "completion": {
+    "maps": [],
+    "questions": [],
+    "rewards": [],
+    "boxes": [],
+    "achievements": []
+  },
+  "sources": []
+}
